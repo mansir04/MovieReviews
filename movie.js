@@ -1,80 +1,79 @@
-const url = new URL(location.href); 
-const movieId = url.searchParams.get("id")
-const movieTitle = url.searchParams.get("title")
+const url = new URL(location.href);
+const movieId = url.searchParams.get("id");
+const movieTitle = url.searchParams.get("title");
 
-const APILINK = 'https://review-backend.beaucarnes.repl.co/api/v1/reviews/';
+const APILINK = 'http://localhost:8000/api/v1/reviews/';
 
+  const main = document.getElementById("section");
+  const title = document.getElementById("title");
 
-const main = document.getElementById("section");
-const title = document.getElementById("title");
+  title.innerHTML = `<span style="font-size: 2rem; color: black">${movieTitle}</span>`;
 
-title.innerText = movieTitle;
-
-const div_new = document.createElement('div');
-div_new.innerHTML = `
-  <div class="row">
-    <div class="column">
-      <div class="card">
-          New Review
-          <p><strong>Review: </strong>
-            <input type="text" id="new_review" value="">
-          </p>
-          <p><strong>User: </strong>
-            <input type="text" id="new_user" value="">
-          </p>
-          <p><a href="#" onclick="saveReview('new_review', 'new_user')">💾</a>
-          </p>
+  const div_new = document.createElement('div');
+  div_new.innerHTML = `
+    <div class="row">
+      <div class="column">
+        <div class="reviewcard">
+            <h1><u>New Review</u></h1>
+            <p><strong><h2>Review: </h2></strong>
+              <input type="text" id="new_review" value="">
+            </p>
+            <p><strong><h2>User: </h2></strong>
+              <input type="text" id="new_user" value="">
+            </p>
+            <p><a href="#" onclick="saveReview('new_review', 'new_user')" style="color: lightgreen">Save</a>
+            </p>
+        </div>
       </div>
     </div>
-  </div>
-`
-main.appendChild(div_new)
+  `;
+  main.appendChild(div_new);
 
-returnReviews(APILINK);
+  returnReviews(APILINK);
 
-function returnReviews(url){
-  fetch(url + "movie/" + movieId).then(res => res.json())
-  .then(function(data){
-  console.log(data);
-  data.forEach(review => {
-      const div_card = document.createElement('div');
-      div_card.innerHTML = `
+
+function returnReviews(url) {
+  fetch(url + "movie/" + movieId)
+    .then(res => res.json())
+    .then(function(data) {
+      console.log(data);
+      data.forEach(review => {
+        const div_card = document.createElement('div');
+        div_card.innerHTML = `
           <div class="row">
             <div class="column">
-              <div class="card" id="${review._id}">
-                <p><strong>Review: </strong>${review.review}</p>
-                <p><strong>User: </strong>${review.user}</p>
-                <p><a href="#"onclick="editReview('${review._id}','${review.review}', '${review.user}')">✏️</a> <a href="#" onclick="deleteReview('${review._id}')">🗑</a></p>
-              </div>
+              <div class="reviewcard" id="${review._id}">
+                <p><strong><h3>Review: </h3></strong>${review.review}</p>
+                <p><strong><h3>User: </h3></strong>${review.user}</p>
+                <p><a href="#" onclick="editReview('${review._id}','${review.review}', '${review.user}')" style="color: lightgreen">Edit</a> <a href="#" onclick="deleteReview('${review._id}')" style="color: lightgreen">Delete</a></p>
+                </div>
             </div>
           </div>
-        `
+        `;
 
-      main.appendChild(div_card);
+        main.appendChild(div_card);
+      });
     });
-  });
 }
 
 function editReview(id, review, user) {
-
   const element = document.getElementById(id);
-  const reviewInputId = "review" + id
-  const userInputId = "user" + id
-  
+  const reviewInputId = "review" + id;
+  const userInputId = "user" + id;
+
   element.innerHTML = `
-              <p><strong>Review: </strong>
-                <input type="text" id="${reviewInputId}" value="${review}">
-              </p>
-              <p><strong>User: </strong>
-                <input type="text" id="${userInputId}" value="${user}">
-              </p>
-              <p><a href="#" onclick="saveReview('${reviewInputId}', '${userInputId}', '${id}',)">💾</a>
-              </p>
-  
-  `
+    <p><strong>Review: </strong>
+      <input type="text" id="${reviewInputId}" value="${review}">
+    </p>
+    <p><strong>User: </strong>
+      <input type="text" id="${userInputId}" value="${user}">
+    </p>
+    <p><a href="#" onclick="saveReview('${reviewInputId}', '${userInputId}', '${id}')" style="color: lightgreen">Save</a>
+    </p>
+  `;
 }
 
-function saveReview(reviewInputId, userInputId, id="") {
+function saveReview(reviewInputId, userInputId, id = "") {
   const review = document.getElementById(reviewInputId).value;
   const user = document.getElementById(userInputId).value;
 
@@ -85,23 +84,25 @@ function saveReview(reviewInputId, userInputId, id="") {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({"user": user, "review": review})
-    }).then(res => res.json())
+      body: JSON.stringify({ "user": user, "review": review })
+    })
+      .then(res => res.json())
       .then(res => {
-        console.log(res)
+        console.log(res);
         location.reload();
-      });        
+      });
   } else {
-    fetch(APILINK + "new", {
+    fetch(APILINK + "new/", {
       method: 'POST',
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({"user": user, "review": review, "movieId": movieId})
-    }).then(res => res.json())
+      body: JSON.stringify({ "user": user, "review": review, "movieId": movieId })
+    })
+      .then(res => res.json())
       .then(res => {
-        console.log(res)
+        console.log(res);
         location.reload();
       });
   }
@@ -110,9 +111,11 @@ function saveReview(reviewInputId, userInputId, id="") {
 function deleteReview(id) {
   fetch(APILINK + id, {
     method: 'DELETE'
-  }).then(res => res.json())
+  })
+    .then(res => res.json())
     .then(res => {
-      console.log(res)
+      console.log(res);
       location.reload();
-    });    
+    });
 }
+
